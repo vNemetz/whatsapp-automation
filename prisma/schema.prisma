@@ -1,0 +1,53 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Message {
+  id          String   @id @default(uuid())
+  sender      String
+  reciever    String 
+  content     String
+  scheduledAt DateTime @map("scheduled_at")
+  status      MessageStatus @default(SCHEDULED)
+  createdAt   DateTime @default(now()) @map("created_at")
+  sentAt      DateTime? @map("sent_at")
+
+  events    Event[]
+
+  @@map("message")
+}
+
+
+enum MessageStatus {
+  SCHEDULED
+  SENT
+  FAILED
+}
+model Event {
+  id          String       @id @default(uuid())
+  messageId   String       @map("message_id")
+  type        EventType
+  status      EventStatus
+  metadata    Json?
+  createdAt   DateTime     @default(now()) @map("created_at")
+
+  message     Message      @relation(fields: [messageId], references: [id])
+
+  @@map("event")
+
+}
+
+enum EventType {
+  MESSAGE_ENQUEUED
+  MESSAGE_SENT
+  MESSAGE_RECEIVED
+}
+
+enum EventStatus {
+  SUCCESS
+  FAILED
+}
