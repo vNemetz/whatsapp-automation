@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { CreateMessageDto } from '../dto/create-message.dto';
 import { PrismaService } from '../../../../../libs/prisma/src/prisma.service';
 import { RabbitMqService } from '../../../../../libs/rabbitmq/src/rabbitmq.service';
@@ -7,18 +7,21 @@ import { ScheduleService } from './schedule.service';
 
 @Injectable()
 export class MessageService {
+  logger = new Logger('MessageService');
   constructor(
     private readonly prisma: PrismaService,
     private readonly rabbit: RabbitMqService,
     private readonly scheduleService: ScheduleService,
   ) {}
 
-  async enqueueMessage(dto: CreateMessageDto) {
-    dto.sender = '5541991151087';
-    dto.scheduledAt = new Date();
+  async straightEnqueueMessage(dto: CreateMessageDto) {
+    //Send message now
+    const scheduledAt = new Date();
+
     const message = await this.prisma.message.create({
       data: {
         ...dto,
+        scheduledAt,
         status: 'SCHEDULED',
       },
     });
@@ -35,6 +38,10 @@ export class MessageService {
   async scheduleMessage(dto: ScheduleMessageDto) {
     const { sender, reciever, content } = dto;
     const scheduledAt = new Date(dto.scheduledAt);
+    this.logger.log(
+      `Started scheduling message from sender ${sender} to reciever ${reciever}`,
+    );
+
     const message = await this.prisma.message.create({
       data: {
         sender,

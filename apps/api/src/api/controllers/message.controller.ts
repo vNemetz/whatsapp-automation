@@ -8,8 +8,8 @@ export class MessageController {
   constructor(private readonly messageService: MessageService) {}
 
   @Post('/')
-  async enqueueMessage(@Body() dto: CreateMessageDto) {
-    return await this.messageService.enqueueMessage(dto);
+  async straightEnqueueMessage(@Body() dto: CreateMessageDto) {
+    return await this.messageService.straightEnqueueMessage(dto);
   }
 
   @Post('/schedule')

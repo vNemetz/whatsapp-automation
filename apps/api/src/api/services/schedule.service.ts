@@ -14,10 +14,18 @@ export class ScheduleService {
   }
 
   async scheduleMessage(messageId: string, scheduledAt: Date) {
+    this.logger.log(
+      `Scheduling message ${messageId} to be sent at ${scheduledAt}`,
+    );
     const timeKey = scheduledAt.getTime();
 
-    const scheduleKey = await this.redis.zadd('schedule:message', timeKey, messageId);
+    const scheduleKey = await this.redis.zadd(
+      'schedule:message',
+      timeKey,
+      messageId,
+    );
 
+    this.logger.log(`Successfully scheduled message ${messageId}`);
     return scheduleKey;
   }
 
@@ -33,6 +41,7 @@ export class ScheduleService {
   }
 
   async removeScheduledMessage(messageId: string) {
+    this.logger.log(`Removing message ${messageId} from Redis schedule queue`);
     return await this.redis.zrem('schedule:message', messageId);
   }
 }
