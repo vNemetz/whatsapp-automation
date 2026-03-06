@@ -14,6 +14,12 @@
 git clone git@github.com:vNemetz/whatsapp-automation.git 
 ```
 
+<p>Install the dependencies:</p>
+
+```
+npm install
+```
+
 <p>Run the API:</p>
 
 ```
